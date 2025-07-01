@@ -1,0 +1,71 @@
+create table dept(
+    deptid number primary key,
+    dname varchar(50));
+
+CREATE TABLE empp (
+    empid NUMBER PRIMARY KEY,
+    ename VARCHAR(50),
+    city VARCHAR(50),
+    deptid NUMBER,
+    salary NUMBER,
+    managerid NUMBER,
+    FOREIGN KEY (deptid) REFERENCES dept(deptid),
+    FOREIGN KEY (managerid) REFERENCES empp(empid)
+);
+INSERT INTO dept (deptid, dname) VALUES (1, 'Sales');
+INSERT INTO dept (deptid, dname) VALUES (2, 'Marketing');
+INSERT INTO dept (deptid, dname) VALUES (3, 'HR');
+INSERT INTO dept (deptid, dname) VALUES (4, 'IT');
+INSERT INTO dept (deptid, dname) VALUES (5, 'Finance');
+
+INSERT INTO empp (empid, ename, city, deptid, salary, managerid) VALUES (101, 'Mohit', 'Thane', 1, 75000, NULL);
+INSERT INTO empp (empid, ename, city, deptid, salary, managerid) VALUES (102, 'Pratham', 'Delhi', 2, 68000, NULL);
+INSERT INTO empp (empid, ename, city, deptid, salary, managerid) VALUES (103, 'Nikhil', 'Virar', 1, 55000, 101);
+INSERT INTO empp (empid, ename, city, deptid, salary, managerid) VALUES (104, 'Manav', 'Goregaon', 2, 60000, 102);
+INSERT INTO empp (empid, ename, city, deptid, salary, managerid) VALUES (105, 'Krishna', 'Malad', 4, 72000, 101);
+
+
+select * from dept;
+select * from empp;
+
+Q1
+
+select empid,ename 
+from dept d
+inner join empp e
+on e.deptid = d.deptid
+where d.dname = 'IT';
+
+Q2
+
+select max(salary) highesest_salary,dname
+from dept d
+inner join empp e
+on e.deptid = d.deptid
+GROUP BY d.dname;
+
+Q3
+
+select e2.empid, e2.ename, e1.ename manager_name
+from empp e1, empp e2
+where e1.empid = e2.managerid;
+
+Q4
+
+select max(salary)
+from empp
+where salary < (
+select max(salary)
+from empp
+where salary < (
+select max(salary)
+from empp)
+);
+
+Q5
+
+select d.dname, sum(e.salary) as total_salary
+from dept d
+inner join empp e ON d.deptid = e.deptid
+group by d.dname
+having sum(e.salary) > 10000;
