@@ -1,0 +1,117 @@
+CREATE TABLE emp (
+eno    NUMBER PRIMARY KEY,
+ename  VARCHAR2(50),
+hrs    NUMBER,
+pno number REFERENCES project
+);
+
+CREATE TABLE project (
+pname  VARCHAR2(50),
+pno    NUMBER PRIMARY KEY,
+thrs   NUMBER  
+);
+
+
+INSERT INTO project (pname, pno, thrs) VALUES ('p1', 1101, 0);
+INSERT INTO project (pname, pno, thrs) VALUES ('cs', 1102, 0);
+INSERT INTO project (pname, pno, thrs) VALUES ('hr', 1103, 0);
+
+INSERT INTO emp (eno, ename, hrs, pno) VALUES (5, 'Rahul', 40, 1102);
+INSERT INTO emp (eno, ename, hrs, pno) VALUES (2, 'Priya', 35, 1101);
+INSERT INTO emp (eno, ename, hrs, pno) VALUES (3, 'Amit', 30, 1102);
+INSERT INTO emp (eno, ename, hrs, pno) VALUES (4, 'Sneha', 45, 1103);
+INSERT INTO emp (eno, ename, hrs, pno) VALUES (1, 'Mohit', 25, 1102);
+
+Q1.
+create or replace trigger emp_insert
+after insert on emp
+for each row
+BEGIN
+update project set thrs = thrs + :new.hrs where pno = :new.pno;
+END;
+Q2.
+create or replace trigger update_dept
+after update on emp
+for each row
+BEGIN
+update project set thrs = thrs - :old.hrs + :new.hrs where pno = :new.pno;
+END;
+
+update emp set hrs = 0 where eno=1;
+update emp set hrs = 110 where eno=2;
+update emp set hrs = 0 where eno=3;
+update emp set hrs = 0 where eno=4;
+update emp set hrs = 0 where eno=5;
+
+
+Q3.
+create or replace trigger update_dept
+after update on emp
+for each row
+BEGIN
+update project set thrs = thrs - :old.hrs where pno = :old.pno;
+update project set thrs = thrs + :new.hrs where pno = :new.pno;
+END;
+
+update emp set pno = 1101 where eno=5;
+
+Q4.
+create or replace trigger del_emp
+after delete on emp
+for each row
+BEGIN
+update project set thrs = thrs - :old.hrs where pno = :old.pno;
+END;
+delete from emp where eno = 2;
+
+Q5.
+
+create table emp_log (
+day date,
+action varchar2(50)
+);
+
+create or replace trigger trg_log_emp_changes
+after insert or delete or update on emp
+begin
+if inserting then
+insert into emp_log  values (sysdate, 'Inserted');
+
+elsif updating then
+insert into emp_log values (sysdate, 'Updated');
+
+elsif deleting then
+insert into emp_log values (sysdate, 'Deleted');
+end if;
+end;
+INSERT INTO emp (eno, ename, hrs, pno) VALUES (6, 'Sahaj', 40, 1103);
+select * from emp_log;
+
+Q6.
+
+create or replace trigger t6
+before delete on project
+for each row
+BEGIN
+update emp set pno = null where pno = :old.pno;
+END;
+ 
+Q7.
+
+create or replace trigger t7
+after update on emp
+for each row
+BEGIN
+if (to_char(sysdate, 'DY') = 'SUN') then
+raise_application_error(-20001, 'Updates cannot happen on Sundays');
+End if;
+END;
+
+delete from project where pno = 1103;
+select * from emp;
+select * from project;
+
+
+
+
+
